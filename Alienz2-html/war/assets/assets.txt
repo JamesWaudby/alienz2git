@@ -1,0 +1,7 @@
+d:war/
+i:dot3.png
+i:filledCircle.png
+t:font32.fnt
+i:font32.png
+i:hollowCircle.png
+i:ship.png
