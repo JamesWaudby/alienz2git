@@ -1,5 +1,6 @@
 package com.max.Alienz2;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
@@ -22,7 +23,10 @@ public class MyInputProcessor implements InputProcessor {
 	@Override
 	public boolean keyDown(int keycode) {
 		// TODO Auto-generated method stub
-		return false;
+		if(keycode == Input.Keys.SPACE) {
+			this.ship.fire();
+		}
+		return true;
 	}
 
 	@Override

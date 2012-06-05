@@ -13,7 +13,11 @@ public class GameScreen implements Screen {
 	private BitmapFont font;
 	private OrthographicCamera camera;
 	SpriteBatch batch;
+	
+	
 	Ship ship;
+	Enemy test;
+	
 	OnScreenJoystick joyStick, joyStick2;
 	MyInputProcessor inputProcessor;
 	
@@ -33,6 +37,8 @@ public class GameScreen implements Screen {
     	Gdx.files.internal("font32.png"), true);
     	
     	ship = new Ship(352, 400);
+    	test = new Enemy(100,100);
+    	
     	//joyStick2 = new OnScreenJoystick(0,0, 48, 32);
     	joyStick = new OnScreenJoystick(200,340, 48, 32);
     	
@@ -47,12 +53,15 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
+		// Do all the updating...
 		camera.update();
 		ship.update(camera);
 		
 		if (joyStick.getActive()) ship.setSpeed((float)joyStick.getDistance() / 8);
 		else ship.slowSpeed();
 		
+		
+		// Do all the drawing
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		
@@ -60,6 +69,7 @@ public class GameScreen implements Screen {
 		font.setScale(1);
 		font.draw(batch,  "Score: ", 24, 24);
 		ship.render(batch);
+		test.render(batch);
 		joyStick.render(batch);
 		//joyStick2.render(batch);
 		

@@ -1,5 +1,7 @@
 package com.max.Alienz2;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -7,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 
 public class Ship extends Rectangle {
 
@@ -16,7 +19,9 @@ public class Ship extends Rectangle {
 	private BitmapFont font;
 	private float speed;
 	private float decreaseSpeed;
-
+	
+	Array<Bullet> bullets = new Array<Bullet>();
+	
 	public Ship (int x, int y)
 	{
 		this.x = x;
@@ -39,12 +44,18 @@ public class Ship extends Rectangle {
 		if (x > 800 - 48) x = 800 -48;
 		if (y < 0 ) y = 0;
 		if (y > 480 - 48 ) y = 480 - 48;
+		
+		
+		Iterator<Bullet> iter = bullets.iterator();
+		while(iter.hasNext()) {
+			Bullet bullet = iter.next();
+			bullet.update();
+		}
 	}
 	
 	public void render(SpriteBatch batch) {
 		batch.draw(image, x, y);
 		font.draw(batch,  "Dir: " + dir, x - 32, y - 32);
-		
 	}
 	
 	public void setSpeed(float speed){
@@ -70,6 +81,11 @@ public class Ship extends Rectangle {
 	public void setDir(float newDir)
 	{
 		dir = newDir;
+	}
+	
+	public void fire() {
+		Bullet bullet = new Bullet(this.x, this.y + 200, this.dir, this.speed);		
+		bullets.add(bullet);
 	}
 
 }
