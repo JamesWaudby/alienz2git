@@ -1,15 +1,22 @@
 package com.max.Alienz2;
 
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.Vector3;
 
 public class MyInputProcessor implements InputProcessor {
 	Ship ship;
-	OnScreenJoystick joyStick;
+	OnScreenJoystick joyStick, joyStick2;
+	Camera camera;
+	int pointerID;
+	boolean pointerPicked;
 	
-	public MyInputProcessor(Ship ship, OnScreenJoystick joyStick)
+	public MyInputProcessor(Ship ship, OnScreenJoystick joyStick, Camera camera)
 	{
 		this.ship = ship;
 		this.joyStick = joyStick;
+		this.camera = camera;
+		pointerPicked = false;
 	}
 
 	@Override
@@ -37,14 +44,31 @@ public class MyInputProcessor implements InputProcessor {
 
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
-		joyStick.resetKnob();
+		if (pointer == pointerID)
+		{
+			joyStick.resetKnob();
+			pointerPicked = false;
+		}
 		return true;
 	}
 
 	@Override
 	public boolean touchDragged(int x, int y, int pointer) {
-		joyStick.updateKnobPosition(x, y);
-		ship.setDir(joyStick.angle());
+		if (pointerPicked = false)
+		{
+			pointerID = pointer;
+			pointerPicked = true;
+		}
+		
+		if (pointer == pointerID)
+		{
+			Vector3 touchPos = new Vector3();
+			touchPos.set(x, y, 0);
+			camera.unproject(touchPos);
+			
+			joyStick.updateKnobPosition(touchPos.x, touchPos.y);
+			ship.setDir(joyStick.angle());
+		}
 		return true;
 	}
 

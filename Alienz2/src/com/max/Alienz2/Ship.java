@@ -14,8 +14,9 @@ public class Ship extends Rectangle {
 	private Texture image;
 	private float dir;
 	private BitmapFont font;
-	private double speed;
-	
+	private float speed;
+	private float decreaseSpeed;
+
 	public Ship (int x, int y)
 	{
 		this.x = x;
@@ -26,6 +27,7 @@ public class Ship extends Rectangle {
 		font = new BitmapFont(Gdx.files.internal("font32.fnt"),
 		    	Gdx.files.internal("font32.png"), true);
 		dir = 0;
+		decreaseSpeed = 0.25f;
 	}
 	
 	public void update(OrthographicCamera camera) 
@@ -45,8 +47,20 @@ public class Ship extends Rectangle {
 		
 	}
 	
-	public void setSpeed(double speed){
+	public void setSpeed(float speed){
 		this.speed = speed;
+	}
+	
+	public void slowSpeed()
+	{
+		if (speed > 0)
+		{
+			speed -= decreaseSpeed;
+		}
+		else
+		{
+			speed = 0;
+		}
 	}
 	
 	public void dispose() {

@@ -13,6 +13,8 @@ public class OnScreenJoystick {
 	private float knob_y;
 	private float joyStickRadius;
 	private float knobRadius;
+	private double circ_x;
+	private double circ_y;
 	Texture joyStickImage;
 	Texture knobImage;
 	private boolean active;
@@ -27,6 +29,8 @@ public class OnScreenJoystick {
 		this.knob_x = location_x;
 		this.knob_y = location_y;
 		this.knobRadius = knobRadius;
+		circ_x = 0;
+		circ_y = 0;
 		joyStickImage  = new Texture(Gdx.files.internal("hollowCircle.png"));
 		knobImage  = new Texture(Gdx.files.internal("filledCircle.png"));
 		active = false;
@@ -42,6 +46,18 @@ public class OnScreenJoystick {
 			knob_y = y;
 			distance = Math.sqrt((x-origin_x)*(x-origin_x) + (y-origin_y)*(y-origin_y));
 			active = true;
+		}
+		else
+		{
+			if (active)
+			{		
+				circ_x = origin_x + (joyStickRadius ) * (( x - origin_x) / (Math.sqrt(Math.pow((x - origin_x), 2) + (Math.pow((y - origin_y),2)))));
+				circ_y = origin_y + (joyStickRadius ) * (( y - origin_y) / (Math.sqrt(Math.pow((x - origin_x), 2) + (Math.pow((y - origin_y),2)))));
+				distance = Math.sqrt((circ_x-origin_x)*(circ_x-origin_x) + (circ_y-origin_y)*(circ_y-origin_y));
+				
+				knob_x = ((float) circ_x);
+				knob_y = (float) circ_y;
+			}
 		}
 	}
 	
