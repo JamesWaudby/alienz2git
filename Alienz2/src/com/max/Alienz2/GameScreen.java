@@ -14,8 +14,7 @@ public class GameScreen implements Screen {
 	private OrthographicCamera camera;
 	SpriteBatch batch;
 	Ship ship;
-	Pointer pointer;
-	OnScreenJoystick joyStick;
+	OnScreenJoystick joyStick, joyStick2;
 	MyInputProcessor inputProcessor;
 	
 	// constructor to keep a reference to the main Game class
@@ -34,10 +33,10 @@ public class GameScreen implements Screen {
     	Gdx.files.internal("font32.png"), true);
     	
     	ship = new Ship(352, 400);
-    	pointer = new Pointer(0);
-    	joyStick = new OnScreenJoystick(150,310, 48, 32);
+    	//joyStick2 = new OnScreenJoystick(0,0, 48, 32);
+    	joyStick = new OnScreenJoystick(200,340, 48, 32);
     	
-    	MyInputProcessor inputProcessor = new MyInputProcessor(ship, joyStick);
+    	MyInputProcessor inputProcessor = new MyInputProcessor(ship, joyStick, camera);
     	Gdx.input.setInputProcessor(inputProcessor);
     	
 		batch = new SpriteBatch();
@@ -49,11 +48,10 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
 		camera.update();
-		pointer.update();
 		ship.update(camera);
 		
-		if (joyStick.getActive()) ship.setSpeed(joyStick.getDistance() / 8);
-		else ship.setSpeed(0);
+		if (joyStick.getActive()) ship.setSpeed((float)joyStick.getDistance() / 8);
+		else ship.slowSpeed();
 		
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
@@ -62,8 +60,8 @@ public class GameScreen implements Screen {
 		font.setScale(1);
 		font.draw(batch,  "Score: ", 24, 24);
 		ship.render(batch);
-		pointer.render(batch);
 		joyStick.render(batch);
+		//joyStick2.render(batch);
 		
 		batch.end();
 		
@@ -103,7 +101,6 @@ public class GameScreen implements Screen {
 	public void dispose() {
 		font.dispose();
 		batch.dispose();
-		pointer.dispose();
 		ship.dispose();
 		joyStick.dispose();
 	}
