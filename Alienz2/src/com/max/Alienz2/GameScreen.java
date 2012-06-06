@@ -6,6 +6,9 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Rectangle;
 
 public class GameScreen implements Screen {
 
@@ -13,7 +16,7 @@ public class GameScreen implements Screen {
 	private BitmapFont font;
 	private OrthographicCamera camera;
 	SpriteBatch batch;
-	
+	ShapeRenderer shapes;
 	
 	Ship ship;
 	Enemy test;
@@ -37,15 +40,16 @@ public class GameScreen implements Screen {
     	Gdx.files.internal("font32.png"), true);
     	
     	ship = new Ship(352, 400);
-    	test = new Enemy(100,100);
+    	//test = new Enemy(100,100);
     	
-    	//joyStick2 = new OnScreenJoystick(0,0, 48, 32);
-    	joyStick = new OnScreenJoystick(200,340, 48, 32);
+    	joyStick2 = new OnScreenJoystick(700,370, 48, 32);
+    	joyStick = new OnScreenJoystick(100,370, 48, 32);
     	
-    	MyInputProcessor inputProcessor = new MyInputProcessor(ship, joyStick, camera);
+    	MyInputProcessor inputProcessor = new MyInputProcessor(ship, joyStick,joyStick2, camera);
     	Gdx.input.setInputProcessor(inputProcessor);
     	
 		batch = new SpriteBatch();
+		shapes = new ShapeRenderer();
     }
 
 	@Override
@@ -55,9 +59,9 @@ public class GameScreen implements Screen {
 		
 		// Do all the updating...
 		camera.update();
-		ship.update(camera);
-		
+		ship.update(camera);		
 		if (joyStick.getActive()) ship.setSpeed((float)joyStick.getDistance() / 8);
+		//else if(joyStick2.getActive()) ship.setSpeed((float)joyStick2.getDistance() /8);
 		else ship.slowSpeed();
 		
 		
@@ -69,11 +73,13 @@ public class GameScreen implements Screen {
 		font.setScale(1);
 		font.draw(batch,  "Score: ", 24, 24);
 		ship.render(batch);
-		test.render(batch);
+		//test.render(batch);
 		joyStick.render(batch);
-		//joyStick2.render(batch);
+		joyStick2.render(batch);
 		
 		batch.end();
+		
+		ship.drawBars(shapes);
 		
 	}
 

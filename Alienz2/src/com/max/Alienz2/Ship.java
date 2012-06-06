@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -19,6 +21,12 @@ public class Ship extends Rectangle {
 	private BitmapFont font;
 	private float speed;
 	private float decreaseSpeed;
+	
+	private float health;
+	private float adrenalin;
+	
+	Rectangle healthBar;
+	Rectangle adrenalinBar;
 	
 	Array<Bullet> bullets = new Array<Bullet>();
 	
@@ -33,6 +41,12 @@ public class Ship extends Rectangle {
 		    	Gdx.files.internal("font32.png"), true);
 		dir = 0;
 		decreaseSpeed = 0.25f;
+		
+		this.health = 100;
+		healthBar = new Rectangle(580,450,(200 * (this.health/100)), 12);
+		
+		this.adrenalin = 0;
+		adrenalinBar = new Rectangle(580, 435, (200 * (this.adrenalin/100)), 12);
 	}
 	
 	public void update(OrthographicCamera camera) 
@@ -46,9 +60,10 @@ public class Ship extends Rectangle {
 		if (y > 480 - 48 ) y = 480 - 48;
 		
 		
-		Iterator<Bullet> iter = bullets.iterator();
-		while(iter.hasNext()) {
-			Bullet bullet = iter.next();
+		healthBar.width = 200 * (this.health/100);
+		adrenalinBar.width = 200 * (this.adrenalin/100);
+		
+		for(Bullet bullet: bullets) {
 			bullet.update();
 		}
 	}
@@ -56,6 +71,11 @@ public class Ship extends Rectangle {
 	public void render(SpriteBatch batch) {
 		batch.draw(image, x, y);
 		font.draw(batch,  "Dir: " + dir, x - 32, y - 32);
+		font.draw(batch, "Health:" + health , x - 32, y - 64);
+		
+		for(Bullet bullet: bullets) {
+			bullet.render(batch);
+		}
 	}
 	
 	public void setSpeed(float speed){
@@ -84,8 +104,47 @@ public class Ship extends Rectangle {
 	}
 	
 	public void fire() {
-		Bullet bullet = new Bullet(this.x, this.y + 200, this.dir, this.speed);		
+		Bullet bullet = new Bullet(this.x, this.y, this.dir);		
 		bullets.add(bullet);
+	}
+
+	public float getHealth() {
+		return health;
+	}
+
+	public void setHealth(float health) {
+		if(this.health + health < 100 && this.health + health > 0) {
+			this.health = health;
+		}
+		else if(this.health + health > 100) {
+			this.health = 100;
+		}
+		else if(this.health + health < 0) {
+			this.health = 0;
+		}
+	}
+	
+	public float getAdrenalin() {
+		return adrenalin;
+	}
+
+	public void setAdrenalin(float adrenalin) {
+		if(this.adrenalin + adrenalin < 100) {
+			this.adrenalin = adrenalin;
+		}
+		else {
+			this.adrenalin = 100;
+		}
+	}
+	
+	public void drawBars(ShapeRenderer shapes) {
+		shapes.begin(ShapeType.FilledRectangle);
+		shapes.setColor(0,255,255,0);
+		shapes.filledRect(healthBar.x, healthBar.y, healthBar.width, healthBar.height);
+		
+		shapes.setColor(0,255,255,0);
+		shapes.filledRect(adrenalinBar.x, adrenalinBar.y, adrenalinBar.width, adrenalinBar.height);
+		shapes.end();
 	}
 
 }

@@ -8,15 +8,20 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class Bullet extends Rectangle {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private Texture image;
 	private float dir;
 	private float speed;
 	
-	public Bullet(float x, float y, float dir, float speed) {
+	public Bullet(float x, float y, float dir) {
 		this.x = x;
 		this.y = y;
 		this.dir = dir;
-		this.speed = speed;
+		this.speed = 8;
 		this.image  = new Texture(Gdx.files.internal("ship.png"));
 	}	
 	

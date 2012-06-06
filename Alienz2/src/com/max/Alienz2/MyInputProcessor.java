@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.TimeUtils;
 
 public class MyInputProcessor implements InputProcessor {
 	Ship ship;
@@ -11,13 +12,19 @@ public class MyInputProcessor implements InputProcessor {
 	Camera camera;
 	int pointerID;
 	boolean pointerPicked;
+	long lastFire;
+	long fireTime;
 	
-	public MyInputProcessor(Ship ship, OnScreenJoystick joyStick, Camera camera)
+	public MyInputProcessor(Ship ship, OnScreenJoystick joyStick, OnScreenJoystick joyStick2, Camera camera)
 	{
 		this.ship = ship;
 		this.joyStick = joyStick;
+		this.joyStick2 = joyStick2;
 		this.camera = camera;
 		pointerPicked = false;
+		
+		
+		fireTime = 250000000;
 	}
 
 	@Override
@@ -51,6 +58,7 @@ public class MyInputProcessor implements InputProcessor {
 		if (pointer == pointerID)
 		{
 			joyStick.resetKnob();
+			joyStick2.resetKnob();
 			pointerPicked = false;
 		}
 		return true;
@@ -70,8 +78,20 @@ public class MyInputProcessor implements InputProcessor {
 			touchPos.set(x, y, 0);
 			camera.unproject(touchPos);
 			
-			joyStick.updateKnobPosition(touchPos.x, touchPos.y);
-			ship.setDir(joyStick.angle());
+			if(x < 400) {
+				joyStick.updateKnobPosition(touchPos.x, touchPos.y);
+				ship.setDir(joyStick.angle());
+				
+			}
+			else {
+				joyStick2.updateKnobPosition(touchPos.x, touchPos.y);
+				ship.setDir(joyStick2.angle());
+				//camera.translate(1.0f, 0.1f, 1.0f);
+				if(TimeUtils.nanoTime() - lastFire > fireTime) {
+					ship.fire();
+					lastFire = TimeUtils.nanoTime();
+				}
+			}
 		}
 		return true;
 	}
