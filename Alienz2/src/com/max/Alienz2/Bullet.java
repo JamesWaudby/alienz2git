@@ -37,7 +37,8 @@ public class Bullet extends Rectangle {
 	public void render(SpriteBatch batch) {
 		batch.draw(image, x, y);
 	}
-	
+
+	// Move the bullet along it's trajectory
 	public void update() {
 		x += speed * MathUtils.cosDeg(dir);
 		y += speed * MathUtils.sinDeg(dir);
