@@ -27,6 +27,8 @@ public class GameScreen implements Screen {
 	InputMultiplexer multiplexerTest;
 	MyInputProcessor inputProcessor, inputProcessor2;
 	
+	Controller controller;
+	
 	// constructor to keep a reference to the main Game class
     public GameScreen(Alienz game)
     {
@@ -43,18 +45,21 @@ public class GameScreen implements Screen {
     	
     	font = new BitmapFont(Gdx.files.internal("font32.fnt"),
     	Gdx.files.internal("font32.png"), true);
-    	
+    
     	ship = new Ship(352, 400);
-    	//test = new Enemy(100,100);
-    	
+    		
     	joyStick2 = new OnScreenJoystick(700,370, 48, 32);
     	joyStick = new OnScreenJoystick(100,370, 48, 32);
     	
-    	MyInputProcessor inputProcessor = new MyInputProcessor(ship, joyStick,joyStick2, camera);
+    	this.controller = new Controller(ship, joyStick, joyStick2);
+    	
+    	MyInputProcessor inputProcessor = new MyInputProcessor(ship, joyStick,joyStick2, camera, controller);
     	Gdx.input.setInputProcessor(inputProcessor);
     	
 		batch = new SpriteBatch();
 		shapes = new ShapeRenderer();
+		
+		
     }
 
 	@Override
@@ -66,7 +71,9 @@ public class GameScreen implements Screen {
 		
 		// Do all the updating...
 		camera.update();
-		ship.update(camera);		
+		controller.update();
+		ship.update(camera);
+		
 		if (joyStick.getActive()) ship.setSpeed((float)joyStick.getDistance() / 8);
 		else ship.slowSpeed();
 		
@@ -77,7 +84,11 @@ public class GameScreen implements Screen {
 		
 		font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 		font.setScale(1);
-		font.draw(batch,  "Score: ", 24, 24);
+		font.draw(batch,  "Score: ", 24, 32);
+		
+		font.draw(batch, "Left:" + controller.isLeftJoystickDown(), 24, 96);
+		font.draw(batch,  "Right: " + controller.isRightJoystickDown(), 24, 128);
+		
 		ship.render(batch);
 		//test.render(batch);
 		

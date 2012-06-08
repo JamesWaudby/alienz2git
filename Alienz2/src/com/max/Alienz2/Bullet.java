@@ -41,5 +41,6 @@ public class Bullet extends Rectangle {
 	public void update() {
 		x += speed * MathUtils.cosDeg(dir);
 		y += speed * MathUtils.sinDeg(dir);
+		
 	}
 }

@@ -22,15 +22,16 @@ public class MyInputProcessor implements InputProcessor {
 	boolean leftPressed, rightPressed;
 	int leftPointer, rightPointer;
 	
-	public MyInputProcessor(Ship ship, OnScreenJoystick joyStick, OnScreenJoystick joyStick2, Camera camera)
+	Controller controller;
+	
+	public MyInputProcessor(Ship ship, OnScreenJoystick joyStick, OnScreenJoystick joyStick2, Camera camera, Controller controller)
 	{
 		this.ship = ship;
 		this.joyStick = joyStick;
 		this.joyStick2 = joyStick2;
 		this.camera = camera;
-		
-		fireTime = 100000000;
-		
+		this.controller = controller;
+				
 		// Default back to -1
 		leftPointer = -1;
 		rightPointer = -1;
@@ -77,12 +78,14 @@ public class MyInputProcessor implements InputProcessor {
 			leftPressed = true;
 			
 			joyStick.setOrigin(touchPos.x, touchPos.y);
+			
 		}
 		else {
 			rightPointer = pointer;
 			rightPressed = true;
 			
 			joyStick2.setOrigin(touchPos.x, touchPos.y);
+			
 		}
 		
 		// Log the two pointers
@@ -104,6 +107,10 @@ public class MyInputProcessor implements InputProcessor {
 			leftPointer = -1;
 			leftPressed = false;
 			joyStick.resetKnob();
+			
+			// The user is no longer touching the joystick
+			controller.setLeftJoystickDown(false);
+			
 			Gdx.app.log("Touch Up", "Left Up");
 		}
 		else {
@@ -111,6 +118,9 @@ public class MyInputProcessor implements InputProcessor {
 			rightPressed = false;
 			joyStick2.resetKnob();
 			Gdx.app.log("Touch Up", "Right Up");
+			
+			// The user is no longer touching the joystick
+			controller.setRightJoystickDown(false);
 		}
 			
 		return true;
@@ -130,9 +140,12 @@ public class MyInputProcessor implements InputProcessor {
 			// Log the drag
 			Gdx.app.log("Dragged", "Left Dragged");
 			
-			joyStick.updateKnobPosition(touchPos.x, touchPos.y);
-			ship.setDir(joyStick.angle());
 			
+			// Update the joystick
+			joyStick.updateKnobPosition(touchPos.x, touchPos.y);
+			
+			// Set the controller to know the left joystick has been moved
+			controller.setLeftJoystickDown(true);
 		}
 		
 		else if(rightPointer == pointer && rightPressed == true) {
@@ -140,16 +153,11 @@ public class MyInputProcessor implements InputProcessor {
 			// Log the drag
 			Gdx.app.log("Dragged", "Right Dragged");
 			
+			// Update the joystick
 			joyStick2.updateKnobPosition(touchPos.x, touchPos.y);
 			
-			ship.setFireDir(joyStick2.angle());
-			ship.setRotation(joyStick2.angle());
-			
-			// Check fire time and fiiiiiiiiiiiiiire your lazors.
-			if(TimeUtils.nanoTime() - lastFire > fireTime) {
-				ship.fire();
-				lastFire = TimeUtils.nanoTime();
-			}
+			// Set the controller to know the right joystick has been moved
+			controller.setRightJoystickDown(true);
 		}
 		return true;
 	}

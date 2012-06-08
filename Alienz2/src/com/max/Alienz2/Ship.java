@@ -1,5 +1,7 @@
 package com.max.Alienz2;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -19,7 +21,6 @@ public class Ship extends Rectangle {
 	private Sprite sprite;
 	private float dir;
 	private float fireDir;
-	private float rotation;
 	
 	private BitmapFont font;
 	private float speed;
@@ -32,6 +33,9 @@ public class Ship extends Rectangle {
 	Rectangle adrenalinBar;
 	
 	Array<Bullet> bullets = new Array<Bullet>();
+	private long lastFire;
+	private long fireTime;
+	
 	
 	public Ship (int x, int y)
 	{
@@ -51,6 +55,8 @@ public class Ship extends Rectangle {
 		
 		this.adrenalin = 0;
 		adrenalinBar = new Rectangle(580, 60, (200 * (this.adrenalin/100)), 12);
+		
+		this.fireTime = 100000000;
 		
 		this.setSprite(new Sprite(image));
 		
@@ -78,9 +84,19 @@ public class Ship extends Rectangle {
 		
 		//this.sprite.rotate(this.rotation);
 		
-		for(Bullet bullet: bullets) {
+		Iterator<Bullet> iter = bullets.iterator();
+		
+		
+		while (iter.hasNext()) {
+			Bullet bullet = iter.next();
+			
 			bullet.update();
+			
+			if (bullet.y < 0  || bullet.x < 0 || bullet.y > 480 || bullet.x > 800) {
+				iter.remove();
+			}
 		}
+		
 	}
 	
 	public void render(SpriteBatch batch) {
@@ -90,7 +106,9 @@ public class Ship extends Rectangle {
 		//batch.draw(this.getSprite(), x, y);
 		font.draw(batch,  "Dir: " + dir, x - 32, y - 32);
 		font.draw(batch, "Health:" + health , x - 32, y - 64);
-		font.draw(batch, "Rotation:" + this.sprite.getOriginX() , x - 32, y - 96);
+		font.draw(batch, "Rotation:" + this.sprite.getRotation() , x - 32, y - 96);
+		
+		font.draw(batch, "Bullets:" + (this.bullets.size), 24,64);
 		
 		for(Bullet bullet: bullets) {
 			bullet.render(batch);
@@ -185,6 +203,23 @@ public class Ship extends Rectangle {
 
 	public void setRotation(float angle) {
 		this.sprite.setRotation(angle);
-		//this.rotation = angle;
 	}
+
+	public long getLastFire() {
+		return lastFire;
+	}
+
+	public void setLastFire(long lastFire) {
+		this.lastFire = lastFire;
+	}
+
+	public long getFireTime() {
+		return fireTime;
+	}
+
+	public void setFireTime(long fireTime) {
+		this.fireTime = fireTime;
+	}
+	
+	
 }
