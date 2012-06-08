@@ -63,6 +63,8 @@ public class OnScreenJoystick {
 	
 	public void resetKnob() {
 		active = false;
+		origin_x = - joyStickRadius * 2;
+		origin_y = - joyStickRadius * 2;
 		knob_x = origin_x;
 		knob_y = origin_y;
 	}
@@ -109,6 +111,20 @@ public class OnScreenJoystick {
 	public double getDistance()
 	{
 		return distance;
+	}
+	
+	public void setOrigin(float l_x, float l_y)
+	{
+		if (l_x < 400 && l_x > 0)
+		{
+			origin_x = l_x;
+			origin_y = l_y;
+		}
+		else {
+			origin_x = l_x;
+			origin_y = l_y;
+		}
+		
 	}
 	
 	public void render(SpriteBatch batch)

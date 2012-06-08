@@ -1,5 +1,6 @@
 package com.max.Alienz2;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
@@ -10,10 +11,16 @@ public class MyInputProcessor implements InputProcessor {
 	Ship ship;
 	OnScreenJoystick joyStick, joyStick2;
 	Camera camera;
-	int pointerID;
-	boolean pointerPicked;
+
 	long lastFire;
 	long fireTime;
+	
+	
+	// I used two variables for both sides, might be overkill
+	// could potentially just replace the booleans with checks
+	// whether or not the pointers = -1
+	boolean leftPressed, rightPressed;
+	int leftPointer, rightPointer;
 	
 	public MyInputProcessor(Ship ship, OnScreenJoystick joyStick, OnScreenJoystick joyStick2, Camera camera)
 	{
@@ -21,10 +28,15 @@ public class MyInputProcessor implements InputProcessor {
 		this.joyStick = joyStick;
 		this.joyStick2 = joyStick2;
 		this.camera = camera;
-		pointerPicked = false;
 		
+		fireTime = 100000000;
 		
-		fireTime = 250000000;
+		// Default back to -1
+		leftPointer = -1;
+		rightPointer = -1;
+		
+		leftPressed = false;
+		rightPressed = false;
 	}
 
 	@Override
@@ -50,47 +62,93 @@ public class MyInputProcessor implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button) {
-		return false;
+		
+		// Log which pointer it is
+		Gdx.app.log("Touch", "pointer: " + pointer);
+		
+		// Get the touch input		
+		Vector3 touchPos = new Vector3();
+		touchPos.set(x, y, 0);
+		camera.unproject(touchPos);
+		
+		// Check the positioning of the touch
+		if(touchPos.x < 400) {
+			leftPointer = pointer;
+			leftPressed = true;
+			
+			joyStick.setOrigin(touchPos.x, touchPos.y);
+		}
+		else {
+			rightPointer = pointer;
+			rightPressed = true;
+			
+			joyStick2.setOrigin(touchPos.x, touchPos.y);
+		}
+		
+		// Log the two pointers
+		Gdx.app.log("Left Touch", "pointer: " + leftPointer);
+		Gdx.app.log("Right Touch", "pointer: " + rightPointer);
+		return true;
 	}
-
+	
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
-		if (pointer == pointerID)
-		{
+		
+		// Get the touch
+		Vector3 touchPos = new Vector3();
+		touchPos.set(x, y, 0);
+		camera.unproject(touchPos);
+		
+		// Check where the touch was and update accordingly.
+		if(touchPos.x < 400) {
+			leftPointer = -1;
+			leftPressed = false;
 			joyStick.resetKnob();
-			joyStick2.resetKnob();
-			pointerPicked = false;
+			Gdx.app.log("Touch Up", "Left Up");
 		}
+		else {
+			rightPointer = -1;
+			rightPressed = false;
+			joyStick2.resetKnob();
+			Gdx.app.log("Touch Up", "Right Up");
+		}
+			
 		return true;
 	}
 
 	@Override
 	public boolean touchDragged(int x, int y, int pointer) {
-		if (pointerPicked = false)
-		{
-			pointerID = pointer;
-			pointerPicked = true;
+		
+		// Get the touch position
+		Vector3 touchPos = new Vector3();
+		touchPos.set(x, y, 0);
+		camera.unproject(touchPos);
+		
+		// Check if it's a left or right drag
+		if(leftPointer == pointer && leftPressed == true) {
+			
+			// Log the drag
+			Gdx.app.log("Dragged", "Left Dragged");
+			
+			joyStick.updateKnobPosition(touchPos.x, touchPos.y);
+			ship.setDir(joyStick.angle());
+			
 		}
 		
-		if (pointer == pointerID)
-		{
-			Vector3 touchPos = new Vector3();
-			touchPos.set(x, y, 0);
-			camera.unproject(touchPos);
+		else if(rightPointer == pointer && rightPressed == true) {
 			
-			if(x < 400) {
-				joyStick.updateKnobPosition(touchPos.x, touchPos.y);
-				ship.setDir(joyStick.angle());
-				
-			}
-			else {
-				joyStick2.updateKnobPosition(touchPos.x, touchPos.y);
-				ship.setDir(joyStick2.angle());
-				//camera.translate(1.0f, 0.1f, 1.0f);
-				if(TimeUtils.nanoTime() - lastFire > fireTime) {
-					ship.fire();
-					lastFire = TimeUtils.nanoTime();
-				}
+			// Log the drag
+			Gdx.app.log("Dragged", "Right Dragged");
+			
+			joyStick2.updateKnobPosition(touchPos.x, touchPos.y);
+			
+			ship.setFireDir(joyStick2.angle());
+			ship.setRotation(joyStick2.angle());
+			
+			// Check fire time and fiiiiiiiiiiiiiire your lazors.
+			if(TimeUtils.nanoTime() - lastFire > fireTime) {
+				ship.fire();
+				lastFire = TimeUtils.nanoTime();
 			}
 		}
 		return true;

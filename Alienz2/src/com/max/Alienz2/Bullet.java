@@ -22,7 +22,7 @@ public class Bullet extends Rectangle {
 		this.y = y;
 		this.dir = dir;
 		this.speed = 8;
-		this.image  = new Texture(Gdx.files.internal("ship.png"));
+		this.image  = new Texture(Gdx.files.internal("dot3.png"));
 	}	
 	
 	public Texture getImage() {

@@ -1,14 +1,14 @@
 package com.max.Alienz2;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Rectangle;
 
 public class GameScreen implements Screen {
 
@@ -18,11 +18,14 @@ public class GameScreen implements Screen {
 	SpriteBatch batch;
 	ShapeRenderer shapes;
 	
+	FPSLogger log;
+	
 	Ship ship;
 	Enemy test;
 	
 	OnScreenJoystick joyStick, joyStick2;
-	MyInputProcessor inputProcessor;
+	InputMultiplexer multiplexerTest;
+	MyInputProcessor inputProcessor, inputProcessor2;
 	
 	// constructor to keep a reference to the main Game class
     public GameScreen(Alienz game)
@@ -33,6 +36,8 @@ public class GameScreen implements Screen {
     
     private void create()
     {
+    	log = new FPSLogger();
+    	
     	camera = new OrthographicCamera();
 		camera.setToOrtho(true, 800, 480);
     	
@@ -57,11 +62,12 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
+		log.log();
+		
 		// Do all the updating...
 		camera.update();
 		ship.update(camera);		
 		if (joyStick.getActive()) ship.setSpeed((float)joyStick.getDistance() / 8);
-		//else if(joyStick2.getActive()) ship.setSpeed((float)joyStick2.getDistance() /8);
 		else ship.slowSpeed();
 		
 		
@@ -74,12 +80,13 @@ public class GameScreen implements Screen {
 		font.draw(batch,  "Score: ", 24, 24);
 		ship.render(batch);
 		//test.render(batch);
+		
 		joyStick.render(batch);
 		joyStick2.render(batch);
 		
 		batch.end();
 		
-		ship.drawBars(shapes);
+		ship.drawBars(shapes, camera);
 		
 	}
 

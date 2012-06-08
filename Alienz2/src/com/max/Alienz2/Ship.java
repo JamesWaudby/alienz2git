@@ -1,11 +1,10 @@
 package com.max.Alienz2;
 
-import java.util.Iterator;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -17,7 +16,11 @@ public class Ship extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
 	private Texture image;
+	private Sprite sprite;
 	private float dir;
+	private float fireDir;
+	private float rotation;
+	
 	private BitmapFont font;
 	private float speed;
 	private float decreaseSpeed;
@@ -34,6 +37,7 @@ public class Ship extends Rectangle {
 	{
 		this.x = x;
 		this.y = y;
+		
 		width = 48;
 		height = 48;
 		image  = new Texture(Gdx.files.internal("ship.png"));
@@ -43,14 +47,21 @@ public class Ship extends Rectangle {
 		decreaseSpeed = 0.25f;
 		
 		this.health = 100;
-		healthBar = new Rectangle(580,450,(200 * (this.health/100)), 12);
+		healthBar = new Rectangle(580,30,(200 * (this.health/100)), 12);
 		
 		this.adrenalin = 0;
-		adrenalinBar = new Rectangle(580, 435, (200 * (this.adrenalin/100)), 12);
+		adrenalinBar = new Rectangle(580, 60, (200 * (this.adrenalin/100)), 12);
+		
+		this.setSprite(new Sprite(image));
+		
+		this.sprite.setX(x);
+		this.sprite.setY(y);
+		this.sprite.setOrigin(48, 24);
 	}
 	
 	public void update(OrthographicCamera camera) 
 	{
+		
 		x += speed * MathUtils.cosDeg(dir);
 		y += speed * MathUtils.sinDeg(dir);
 		
@@ -59,9 +70,13 @@ public class Ship extends Rectangle {
 		if (y < 0 ) y = 0;
 		if (y > 480 - 48 ) y = 480 - 48;
 		
+		this.sprite.setX(x);
+		this.sprite.setY(y);
 		
 		healthBar.width = 200 * (this.health/100);
 		adrenalinBar.width = 200 * (this.adrenalin/100);
+		
+		//this.sprite.rotate(this.rotation);
 		
 		for(Bullet bullet: bullets) {
 			bullet.update();
@@ -69,9 +84,13 @@ public class Ship extends Rectangle {
 	}
 	
 	public void render(SpriteBatch batch) {
-		batch.draw(image, x, y);
+		
+		//this.sprite.rotate(this.rotation);
+		this.sprite.draw(batch);
+		//batch.draw(this.getSprite(), x, y);
 		font.draw(batch,  "Dir: " + dir, x - 32, y - 32);
 		font.draw(batch, "Health:" + health , x - 32, y - 64);
+		font.draw(batch, "Rotation:" + this.sprite.getOriginX() , x - 32, y - 96);
 		
 		for(Bullet bullet: bullets) {
 			bullet.render(batch);
@@ -103,8 +122,16 @@ public class Ship extends Rectangle {
 		dir = newDir;
 	}
 	
+	public float getFireDir() {
+		return fireDir;
+	}
+
+	public void setFireDir(float fireDir) {
+		this.fireDir = fireDir;
+	}
+	
 	public void fire() {
-		Bullet bullet = new Bullet(this.x, this.y, this.dir);		
+		Bullet bullet = new Bullet((this.x + this.sprite.getOriginX()), (this.y + this.sprite.getOriginY()), this.fireDir);		
 		bullets.add(bullet);
 	}
 
@@ -137,7 +164,8 @@ public class Ship extends Rectangle {
 		}
 	}
 	
-	public void drawBars(ShapeRenderer shapes) {
+	public void drawBars(ShapeRenderer shapes, OrthographicCamera camera ) {
+		shapes.setProjectionMatrix(camera.combined);
 		shapes.begin(ShapeType.FilledRectangle);
 		shapes.setColor(0,255,255,0);
 		shapes.filledRect(healthBar.x, healthBar.y, healthBar.width, healthBar.height);
@@ -147,4 +175,16 @@ public class Ship extends Rectangle {
 		shapes.end();
 	}
 
+	public Sprite getSprite() {
+		return sprite;
+	}
+
+	public void setSprite(Sprite sprite) {
+		this.sprite = sprite;
+	}
+
+	public void setRotation(float angle) {
+		this.sprite.setRotation(angle);
+		//this.rotation = angle;
+	}
 }
