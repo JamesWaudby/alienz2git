@@ -64,9 +64,6 @@ public class MyInputProcessor implements InputProcessor {
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button) {
 		
-		// Log which pointer it is
-		Gdx.app.log("Touch", "pointer: " + pointer);
-		
 		// Get the touch input		
 		Vector3 touchPos = new Vector3();
 		touchPos.set(x, y, 0);
@@ -88,9 +85,6 @@ public class MyInputProcessor implements InputProcessor {
 			
 		}
 		
-		// Log the two pointers
-		Gdx.app.log("Left Touch", "pointer: " + leftPointer);
-		Gdx.app.log("Right Touch", "pointer: " + rightPointer);
 		return true;
 	}
 	
@@ -103,7 +97,7 @@ public class MyInputProcessor implements InputProcessor {
 		camera.unproject(touchPos);
 		
 		// Check where the touch was and update accordingly.
-		if(touchPos.x < 400) {
+		if(pointer == leftPointer) {
 			leftPointer = -1;
 			leftPressed = false;
 			joyStick.resetKnob();
@@ -111,13 +105,11 @@ public class MyInputProcessor implements InputProcessor {
 			// The user is no longer touching the joystick
 			controller.setLeftJoystickDown(false);
 			
-			Gdx.app.log("Touch Up", "Left Up");
 		}
 		else {
 			rightPointer = -1;
 			rightPressed = false;
 			joyStick2.resetKnob();
-			Gdx.app.log("Touch Up", "Right Up");
 			
 			// The user is no longer touching the joystick
 			controller.setRightJoystickDown(false);
@@ -137,10 +129,6 @@ public class MyInputProcessor implements InputProcessor {
 		// Check if it's a left or right drag
 		if(leftPointer == pointer && leftPressed == true) {
 			
-			// Log the drag
-			Gdx.app.log("Dragged", "Left Dragged");
-			
-			
 			// Update the joystick
 			joyStick.updateKnobPosition(touchPos.x, touchPos.y);
 			
@@ -149,10 +137,7 @@ public class MyInputProcessor implements InputProcessor {
 		}
 		
 		else if(rightPointer == pointer && rightPressed == true) {
-			
-			// Log the drag
-			Gdx.app.log("Dragged", "Right Dragged");
-			
+
 			// Update the joystick
 			joyStick2.updateKnobPosition(touchPos.x, touchPos.y);
 			

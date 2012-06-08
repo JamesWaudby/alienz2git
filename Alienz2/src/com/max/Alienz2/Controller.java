@@ -2,6 +2,9 @@ package com.max.Alienz2;
 
 import com.badlogic.gdx.utils.TimeUtils;
 
+// Controller class fits in nicely with the input processor
+// Used to control the joysticks better
+// This is what fixed the dragged problem
 public class Controller {
 	
 	Ship ship;
@@ -28,11 +31,15 @@ public class Controller {
 		}
 	}
 	
+	// Do the processes for if the left joystick is moved
 	public void leftJoystick(float degrees) {
 		ship.setDir(degrees);
 	}
 	
+	// Do the processes for if the right joystick is moved
 	public void rightJoystick(float degrees) {
+		
+		// Rotate the ship and the firing element
 		ship.setFireDir(degrees);
 		ship.setRotation(degrees);
 		
@@ -43,6 +50,7 @@ public class Controller {
 		}
 	}
 
+	// Check if the joystick is down
 	public boolean isLeftJoystickDown() {
 		return leftJoystickDown;
 	}
