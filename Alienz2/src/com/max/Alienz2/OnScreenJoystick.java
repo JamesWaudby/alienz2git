@@ -38,9 +38,7 @@ public class OnScreenJoystick {
 	
 	public void updateKnobPosition(float x, float y)
 	{
-		if ((x - origin_x) * (x - origin_x)
-				+ (y - origin_y) * (y - origin_y)
-				<= joyStickRadius * joyStickRadius)
+		if ((x - origin_x) * (x - origin_x) + (y - origin_y) * (y - origin_y) <= joyStickRadius * joyStickRadius)
 		{
 			knob_x = x;
 			knob_y = y;
@@ -98,6 +96,7 @@ public class OnScreenJoystick {
 		return knob_y - knobRadius;
 	}
 	
+	// Return whether or not the Joystick is active
 	public boolean getActive() {
 		return active;
 	}
@@ -113,18 +112,11 @@ public class OnScreenJoystick {
 		return distance;
 	}
 	
+	
 	public void setOrigin(float l_x, float l_y)
 	{
-		if (l_x < 400 && l_x > 0)
-		{
 			origin_x = l_x;
 			origin_y = l_y;
-		}
-		else {
-			origin_x = l_x;
-			origin_y = l_y;
-		}
-		
 	}
 	
 	public void render(SpriteBatch batch)

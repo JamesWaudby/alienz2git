@@ -34,6 +34,7 @@ public class Controller {
 	// Do the processes for if the left joystick is moved
 	public void leftJoystick(float degrees) {
 		ship.setDir(degrees);
+		
 	}
 	
 	// Do the processes for if the right joystick is moved
@@ -44,9 +45,9 @@ public class Controller {
 		ship.setRotation(degrees);
 		
 		// Check fire time and fire
-		if(TimeUtils.nanoTime() - ship.getLastFire() > ship.getFireTime()) {
+		if(TimeUtils.millis() - ship.getLastFire() > ship.getFireTime()) {
 			ship.fire();
-			ship.setLastFire(TimeUtils.nanoTime());
+			ship.setLastFire(TimeUtils.millis());
 		}
 	}
 

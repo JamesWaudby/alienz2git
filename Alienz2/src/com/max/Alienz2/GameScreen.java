@@ -1,5 +1,7 @@
 package com.max.Alienz2;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -9,6 +11,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 
 public class GameScreen implements Screen {
 
@@ -27,7 +33,15 @@ public class GameScreen implements Screen {
 	InputMultiplexer multiplexerTest;
 	MyInputProcessor inputProcessor, inputProcessor2;
 	
+	// Controls the actions from the joysticks
 	Controller controller;
+	
+	// Contains information about waves
+	Array<Wave> waves;
+	
+	private long lastSpawn;
+	private long spawnTime;
+	
 	
 	// constructor to keep a reference to the main Game class
     public GameScreen(Alienz game)
@@ -59,7 +73,8 @@ public class GameScreen implements Screen {
 		batch = new SpriteBatch();
 		shapes = new ShapeRenderer();
 		
-		
+		waves = new Array<Wave>();
+		this.spawnTime = 3000;
     }
 
 	@Override
@@ -69,19 +84,48 @@ public class GameScreen implements Screen {
 		
 		log.log();
 		
+		
 		// Do all the updating...
+		checkSpawn();
 		camera.update();
 		controller.update();
 		ship.update(camera);
 		
-		if (joyStick.getActive()) ship.setSpeed((float)joyStick.getDistance() / 8);
-		else ship.slowSpeed();
-		
+		checkShip();
+
+		// Draw the enemy's health bars and update
+		for(Wave wave: waves) {
+			wave.update(shapes, camera);
+			//wave.drawHealthBars(shapes, camera);
+		}
 		
 		// Do all the drawing
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
+				
+		// Render the waves of enemies
+		for(Wave wave: waves) wave.render(batch);
 		
+		ship.render(batch);
+		
+		joyStick.render(batch);
+		joyStick2.render(batch);
+		
+		// Draw the UI elements
+		drawUI();
+		
+		batch.end();
+		
+		
+		checkCollisions();
+		
+		// Draw the player's health bars
+		ship.drawBars(shapes, camera);
+		
+	}
+	
+	// Draw all of the text elements to screen
+	public void drawUI() {
 		font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 		font.setScale(1);
 		font.draw(batch,  "Score: ", 24, 32);
@@ -89,16 +133,76 @@ public class GameScreen implements Screen {
 		font.draw(batch, "Left:" + controller.isLeftJoystickDown(), 24, 96);
 		font.draw(batch,  "Right: " + controller.isRightJoystickDown(), 24, 128);
 		
-		ship.render(batch);
-		//test.render(batch);
+		font.draw(batch,  "Waves: " + waves.size, 24, 156);
+	}
+	
+	public void checkShip() {
+		if (joyStick.getActive()) ship.setSpeed((float)joyStick.getDistance() / 8);
+		else ship.slowSpeed();
+	}
+	
+	public void checkSpawn() {
+		// Spawn new waves
+		if(TimeUtils.millis() - this.lastSpawn > this.spawnTime) {
+			waves.add(new Wave(3, MathUtils.random(0, 3), ship));
+			this.lastSpawn = TimeUtils.millis();
+		}	
+	}
+	
+	public void checkCollisions() {
 		
-		joyStick.render(batch);
-		joyStick2.render(batch);
+		Iterator<Bullet> iter = ship.bullets.iterator();
 		
-		batch.end();
-		
-		ship.drawBars(shapes, camera);
-		
+		// Iterate through the bullets
+		while(iter.hasNext()) {
+			Bullet bullet = iter.next();
+			
+			if (bullet.y < 0  || bullet.x < 0 || bullet.y > 480 || bullet.x > 800) {
+				iter.remove();
+			}
+			
+			// Iterate through the waves
+			Iterator<Wave> waveIter = waves.iterator();
+			
+			while(waveIter.hasNext()) {
+				Wave wave = waveIter.next();
+	
+				// Iterate through the enemies of the waves
+				Iterator<Enemy> enemyIter = wave.enemies.iterator();
+				
+				while(enemyIter.hasNext()) {
+					Enemy enemy = enemyIter.next();					
+					Rectangle enemyRect = enemy.getSprite().getBoundingRectangle();
+					Rectangle shipRect = ship.getSprite().getBoundingRectangle();
+					
+					if(enemy.x > 0 && enemy.x < 800 && enemy.y > 0 && enemy.y < 480) {
+						// Check if the bullet has hit an enemy
+						if(enemyRect.overlaps(bullet)) {
+							
+							// Delete the bullet on collide
+							iter.remove();
+							
+							// Reduce enemy health
+							enemy.setHealth(enemy.getHealth()-10);
+							
+							if(enemy.getHealth() == 0) {
+								
+								enemyIter.remove();
+								ship.setAdrenalin(ship.getAdrenalin() + 5);
+							}
+							
+						}
+						
+						
+						if(shipRect.overlaps(enemyRect)) {
+							ship.setHealth(ship.getHealth() - 5);
+						}
+					}
+				}
+
+			}
+			
+		}
 	}
 
 	@Override

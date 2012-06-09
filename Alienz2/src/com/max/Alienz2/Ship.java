@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 
 public class Ship extends Rectangle {
 
@@ -36,6 +37,9 @@ public class Ship extends Rectangle {
 	private long lastFire;
 	private long fireTime;
 	
+	private long powerupTime;
+	private long powerupStartTime;
+	private boolean poweredUp;
 	
 	public Ship (int x, int y)
 	{
@@ -56,7 +60,12 @@ public class Ship extends Rectangle {
 		this.adrenalin = 0;
 		adrenalinBar = new Rectangle(580, 60, (200 * (this.adrenalin/100)), 12);
 		
-		this.fireTime = 100000000;
+		// Rate of fire
+		this.fireTime = 250;
+		
+		// How long the adrenalin lasts
+		this.powerupTime = 5000;
+		this.poweredUp = false;
 		
 		this.setSprite(new Sprite(image));
 		
@@ -78,37 +87,44 @@ public class Ship extends Rectangle {
 		
 		this.sprite.setX(x);
 		this.sprite.setY(y);
-		
+				
 		healthBar.width = 200 * (this.health/100);
 		adrenalinBar.width = 200 * (this.adrenalin/100);
 		
-		//this.sprite.rotate(this.rotation);
+		// Check for full adrenalin
+		if(this.adrenalin == 100 && this.poweredUp == false) {
+			this.poweredUp = true;
+			this.powerupStartTime = TimeUtils.millis();
+		}
+		
+		// Increase fire rate
+		if(this.poweredUp) {
+			if(TimeUtils.millis() - this.powerupStartTime < this.powerupTime) {
+				this.fireTime = 10;
+			}
+			else {
+				this.fireTime = 250;
+				this.poweredUp = false;
+				this.adrenalin = 0;
+			}
+		}
 		
 		Iterator<Bullet> iter = bullets.iterator();
 		
-		
 		while (iter.hasNext()) {
 			Bullet bullet = iter.next();
-			
 			bullet.update();
-			
-			if (bullet.y < 0  || bullet.x < 0 || bullet.y > 480 || bullet.x > 800) {
-				iter.remove();
-			}
 		}
 		
 	}
 	
 	public void render(SpriteBatch batch) {
 		
-		//this.sprite.rotate(this.rotation);
 		this.sprite.draw(batch);
-		//batch.draw(this.getSprite(), x, y);
-		font.draw(batch,  "Dir: " + dir, x - 32, y - 32);
-		font.draw(batch, "Health:" + health , x - 32, y - 64);
-		font.draw(batch, "Rotation:" + this.sprite.getRotation() , x - 32, y - 96);
 		
-		font.draw(batch, "Bullets:" + (this.bullets.size), 24,64);
+		font.draw(batch, "X: " + this.x, x - 32, y - 32);
+		font.draw(batch, "Y: " + this.y, x - 32, y - 64);
+		font.draw(batch,  "Ad: " + this.adrenalin, this.x-32, this.y - 96);
 		
 		for(Bullet bullet: bullets) {
 			bullet.render(batch);
@@ -220,6 +236,35 @@ public class Ship extends Rectangle {
 	public void setFireTime(long fireTime) {
 		this.fireTime = fireTime;
 	}
+
+	/**
+	 * @return the poweredUp
+	 */
+	public boolean isPoweredUp() {
+		return poweredUp;
+	}
+
+	/**
+	 * @param poweredUp the poweredUp to set
+	 */
+	public void setPoweredUp(boolean poweredUp) {
+		this.poweredUp = poweredUp;
+	}
+
+	/**
+	 * @return the powerupTime
+	 */
+	public long getPowerupTime() {
+		return powerupTime;
+	}
+
+	/**
+	 * @param powerupTime the powerupTime to set
+	 */
+	public void setPowerupTime(long powerupTime) {
+		this.powerupTime = powerupTime;
+	}
+	
 	
 	
 }
